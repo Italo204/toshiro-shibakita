@@ -1,0 +1,44 @@
+version: "3"
+services:
+  nginx:
+    image: nginx:1.21
+    build: ./config/nginx/
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - ./src/:/var/www/html/
+    depends_on:
+      - php-fpm-1
+
+  php-fpm-1:
+    build: ./config/php/
+    restart: always
+    expose:
+      - 9000
+    volumes:
+      - ./src/:/var/www/html/:rw
+    environment:
+      - PORT=9000
+
+  php-fpm-2:
+    build: ./config/php/
+    restart: always
+    expose:
+      - 9001
+    environment:
+      - PORT=9001
+
+  db:
+    image: mysql
+    restart: always
+    hostname: db
+    environment:
+      MYSQL_ROOT_PASSWORD: Senha123
+      MYSQL_DATABASE: banco
+    volumes:
+      - data:/var/lib/mysql
+      - ./config/banco/banco.sql:/docker-entrypoint-initdb.d/banco.sql
+
+volumes:
+  data:
